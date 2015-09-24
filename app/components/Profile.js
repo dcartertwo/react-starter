@@ -3,15 +3,25 @@ var Router = require('react-router');
 var Repos = require('./github/repos');
 var UserProfiles = require('./github/userprofile');
 var Notes = require('./notes/notes');
+var ReactFireMixin = require('reactfire');
+var Firebase = require('firebase');
 
 var Profile = React.createClass({
-  mixins: [Router.State],
+  mixins: [Router.State, ReactFireMixin],
   getInitialState: function() {
     return {
-      notes: ['1', '2'],
+      notes: [],
       bio: {name: 'Dan'},
       repos: [1,2,3]
     }
+  },
+  componentDidMount: function() {
+    this.ref = new Firebase('https://brilliant-heat-7675.firebaseio.com/');
+    var childRef = this.ref.child(this.getParams().username);
+    this.bindAsArray(childRef, 'notes');
+  },
+  componentWillUnmount: function() {
+    this.unbind('notes');
   },
   render:function() {
     var username = this.getParams().username;
